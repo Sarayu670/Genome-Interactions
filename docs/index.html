@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Genomic Interaction Predictor</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css"
+    />
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f8f9fa;
+        color: #333;
+      }
+      .header {
+        background: linear-gradient(135deg, #4a6baf 0%, #254e77 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .card {
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1.5rem;
+        border: none;
+      }
+      .card-header {
+        background-color: #f1f5f9;
+        border-bottom: 1px solid #e2e8f0;
+        font-weight: 600;
+        border-radius: 10px 10px 0 0 !important;
+      }
+      .form-label {
+        font-weight: 500;
+        color: #475569;
+      }
+      .btn-primary {
+        background-color: #4a6baf;
+        border-color: #4a6baf;
+      }
+      .btn-primary:hover {
+        background-color: #254e77;
+        border-color: #254e77;
+      }
+      .result-card {
+        display: none;
+        transition: all 0.3s ease;
+      }
+      .result-card.show {
+        display: block;
+      }
+      .prediction-yes {
+        color: #10b981;
+        font-weight: bold;
+      }
+      .prediction-no {
+        color: #ef4444;
+        font-weight: bold;
+      }
+      .match {
+        color: #10b981;
+      }
+      .no-match {
+        color: #ef4444;
+      }
+      .probability-bar {
+        height: 20px;
+        background-color: #e2e8f0;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-top: 0.5rem;
+      }
+      .probability-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #4a6baf 0%, #254e77 100%);
+        transition: width 0.3s ease;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div class="container">
+        <h1 class="display-4">Genomic Interaction Predictor</h1>
+        <p class="lead">
+          Predict genomic interactions using machine learning
+        </p>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 mx-auto">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">Input Parameters</h5>
+            </div>
+            <div class="card-body">
+              <form id="predictionForm">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label for="IntGroup" class="form-label">Interaction Type</label>
+                    <select class="form-select" id="IntGroup" name="IntGroup" required>
+                      <option value="">Select type...</option>
+                      <option value="PP">PP</option>
+                      <option value="PN">PN</option>
+                      <option value="NP">NP</option>
+                      <option value="NN">NN</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="Strand" class="form-label">Strand</label>
+                    <select class="form-select" id="Strand" name="Strand" required>
+                      <option value="">Select strand...</option>
+                      <option value="+">+</option>
+                      <option value="-">-</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="distance" class="form-label">Distance</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="distance"
+                      name="distance"
+                      required
+                      min="0"
+                    />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="NofInts" class="form-label">Number of Interactions</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="NofInts"
+                      name="NofInts"
+                      required
+                      min="0"
+                    />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="CG1_SuppPairs" class="form-label">CG1 Supporting Pairs</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="CG1_SuppPairs"
+                      name="CG1_SuppPairs"
+                      required
+                      min="0"
+                    />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="CG2_SuppPairs" class="form-label">CG2 Supporting Pairs</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="CG2_SuppPairs"
+                      name="CG2_SuppPairs"
+                      required
+                      min="0"
+                    />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="CC1_SuppPairs" class="form-label">CC1 Supporting Pairs</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="CC1_SuppPairs"
+                      name="CC1_SuppPairs"
+                      required
+                      min="0"
+                    />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="CC2_SuppPairs" class="form-label">CC2 Supporting Pairs</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="CC2_SuppPairs"
+                      name="CC2_SuppPairs"
+                      required
+                      min="0"
+                    />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="CN1_SuppPairs" class="form-label">CN1 Supporting Pairs</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="CN1_SuppPairs"
+                      name="CN1_SuppPairs"
+                      required
+                      min="0"
+                    />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="CN2_SuppPairs" class="form-label">CN2 Supporting Pairs</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="CN2_SuppPairs"
+                      name="CN2_SuppPairs"
+                      required
+                      min="0"
+                    />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="Annotation" class="form-label">Annotation</label>
+                    <select class="form-select" id="Annotation" name="Annotation" required>
+                      <option value="">Select...</option>
+                      <option value="1">Yes</option>
+                      <option value="0">No</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="InteractorAnnotation" class="form-label">Interactor Annotation</label>
+                    <select class="form-select" id="InteractorAnnotation" name="InteractorAnnotation" required>
+                      <option value="">Select...</option>
+                      <option value="1">Yes</option>
+                      <option value="0">No</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="CG1_p_value" class="form-label">CG1 p-value</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="CG1_p_value"
+                      name="CG1_p_value"
+                      required
+                      min="0"
+                      max="1"
+                      step="0.001"
+                    />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="CG2_p_value" class="form-label">CG2 p-value</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="CG2_p_value"
+                      name="CG2_p_value"
+                      required
+                      min="0"
+                      max="1"
+                      step="0.001"
+                    />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="CC1_p_value" class="form-label">CC1 p-value</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="CC1_p_value"
+                      name="CC1_p_value"
+                      required
+                      min="0"
+                      max="1"
+                      step="0.001"
+                    />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="CC2_p_value" class="form-label">CC2 p-value</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="CC2_p_value"
+                      name="CC2_p_value"
+                      required
+                      min="0"
+                      max="1"
+                      step="0.001"
+                    />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="CN1_p_value" class="form-label">CN1 p-value</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="CN1_p_value"
+                      name="CN1_p_value"
+                      required
+                      min="0"
+                      max="1"
+                      step="0.001"
+                    />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="CN2_p_value" class="form-label">CN2 p-value</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="CN2_p_value"
+                      name="CN2_p_value"
+                      required
+                      min="0"
+                      max="1"
+                      step="0.001"
+                    />
+                  </div>
+
+                  <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                      Predict Interaction
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="card result-card" id="resultCard">
+            <div class="card-header">
+              <h5 class="mb-0">Prediction Result</h5>
+            </div>
+            <div class="card-body">
+              <div class="text-center mb-4">
+                <h3>Prediction: <span id="predictionResult"></span></h3>
+                <div class="probability-bar">
+                  <div class="probability-fill" id="probabilityFill"></div>
+                </div>
+                <small class="text-muted">Probability of interaction</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="bg-light py-4 mt-5">
+      <div class="container text-center">
+        <p class="mb-0">&copy; 2024 Genomic Interaction Predictor. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html> 
